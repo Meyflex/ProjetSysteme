@@ -1,28 +1,34 @@
 
+#define MAX_JOBS 100
+
 #include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+
+
+#include <string.h>
+#include "global.h"
 #include "job.h"
 #include "process.h"
-#include <string.h>
-
-
-
+#include "builtin.h"
+#define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
+#define reset  "\033[0m"
+#define BOLDBLUE    "\033[1m\033[34m"      /* Bold Blue */
 
 pid_t shell_pgid;
 struct termios shell_tmodes;
 int shell_terminal;
 int shell_is_interactive;
 
-
-
 /* Make sure the shell is running interactively as the foreground job
    before proceeding. */
+   
 
-void init_shell ()
+void
+init_shell ()
 {
 
   /* See if we are running interactively.  */
@@ -57,33 +63,64 @@ void init_shell ()
       /* Save default terminal attributes for shell.  */
       tcgetattr (shell_terminal, &shell_tmodes);
     }
-    
 }
+    
+
+//read command from shell function using getline
+
 char *read_command()
 {
   char *line=NULL;
-  size_t line_size;
+  ssize_t line_size;
   getline(&line, &line_size, stdin);
+  line[strlen(line)-1]=0;
+ // line[line_size-2]=0;
+
   return line;
 }
 
+
 void shelloop(){
     int status=1;
-    do{
+    do{ 
+        char hostname[1024];
+        gethostname(hostname, 1024);
+        printf(BOLDGREEN"%s@%s",getenv("USER"),hostname);
+        printf(reset":");
+        char cwt[100];
+        if (getcwd(cwt, sizeof(cwt)) != NULL){
+            printf(BOLDBLUE "%s", cwt);
+            printf(reset"$ "); 
+        }
+        else{
+            perror("getcwd() error");
+        }
+        
         char* help=read_command();
         if(strcmp(help,"exit\n")==0){
             status=0;
         }
         else{
-            launch_job(NewJob(help),1,shell_terminal,shell_is_interactive);
+            launch_job(NewJob(help),1);
         }
     }while (status);
 
     
 }
+void welcomeScreen(){
+        printf("\n\t================================================\n");
+        printf("\t          Group 5 :  Shell in C \n");
+        printf("\t      Elmdimegh Mohamed , Hadouaj Habib\n");
+        printf("\t================================================\n");
+        printf("\n\n");
+}
+  
 int main(int argc, char *argv[])
 {
+    welcomeScreen();
+
     init_shell();
     shelloop();
     return 0;
 }
+

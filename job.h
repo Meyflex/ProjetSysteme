@@ -1,15 +1,18 @@
 #ifndef JOB_H
 #define JOB_H
 
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <termios.h>
-#include "process.h"
 #include <stdlib.h>
+#include "global.h"
+#include "process.h"
 
 
-
+// import process structure
+typedef struct process process;
 
 /* A job is a pipeline of processes.  */
 typedef struct job
@@ -61,8 +64,7 @@ void
 do_job_notification ();
 
 void
-launch_job (job *j, int foreground,int shell_terminal,
-int shell_is_interactive);
+launch_job (job *j, int foreground);
 
 void free_job (job *j);
 

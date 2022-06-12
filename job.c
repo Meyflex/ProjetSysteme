@@ -4,6 +4,8 @@
 job *first_job = NULL;
 
 
+
+
 job *find_job (pid_t pgid)
 {
   job *j;
@@ -38,59 +40,8 @@ job_is_completed (job *j)
   return 1;
 }
 
-int
-mark_process_status (pid_t pid, int status)
-{
-  job *j;
-  process *p;
 
 
-  if (pid > 0)
-    {
-      /* Update the record for the process.  */
-      for (j = first_job; j; j = j->next)
-        for (p = j->first_process; p; p = p->next)
-          if (p->pid == pid)
-            {
-              p->status = status;
-              if (WIFSTOPPED (status))
-                p->stopped = 1;
-              else
-                {
-                  p->completed = 1;
-                  if (WIFSIGNALED (status))
-                    fprintf (stderr, "%d: Terminated by signal %d.\n",
-                             (int) pid, WTERMSIG (p->status));
-                }
-              return 0;
-             }
-      fprintf (stderr, "No child process %d.\n", pid);
-      return -1;
-    }
-
-  else if (pid == 0 || errno == ECHILD)
-    /* No processes ready to report.  */
-    return -1;
-  else {
-    /* Other weird errors.  */
-    perror ("waitpid");
-    return -1;
-  }
-}
-
-
-/* Check for processes that have status information available,
-   without blocking.  */
-
-void update_status (void)
-{
-  int status;
-  pid_t pid;
-
-  do
-    pid = waitpid (WAIT_ANY, &status, WUNTRACED|WNOHANG);
-  while (!mark_process_status (pid, status));
-}
 
 void wait_for_job (job *j)
 {
@@ -147,8 +98,7 @@ void do_job_notification ()
 }
 
 void
-launch_job (job *j, int foreground,int shell_terminal,
-int shell_is_interactive)
+launch_job (job *j, int foreground)
 {
   process *p;
   pid_t pid;
@@ -169,31 +119,31 @@ int shell_is_interactive)
         }
       else
         outfile = j->stdout;
-
-      /* Fork the child processes.  */
-      pid = fork ();
-      if (pid == 0)
-        /* This is the child process.  */
-        launch_process (p, j->pgid, infile,
-                        outfile, j->stderr, foreground,shell_is_interactive, shell_terminal);
-      else if (pid < 0)
-        {
-          /* The fork failed.  */
-          perror ("fork");
-          exit (1);
-        }
-      else
-        {
-          /* This is the parent process.  */
-          p->pid = pid;
-          if (shell_is_interactive)
-            {
-              if (!j->pgid)
-                j->pgid = pid;
-              setpgid (pid, j->pgid);
-            }
-        }
-
+    if(!check_builtin_process(p->argv)){
+        /* Fork the child processes.  */
+        pid = fork ();
+        if (pid == 0)
+          /* This is the child process.  */
+          launch_process (p, j->pgid, infile,
+                          outfile, j->stderr, foreground);
+        else if (pid < 0)
+          {
+            /* The fork failed.  */
+            perror ("fork");
+            exit (1);
+          }
+        else
+          {
+            /* This is the parent process.  */
+            p->pid = pid;
+            if (shell_is_interactive)
+              {
+                if (!j->pgid)
+                  j->pgid = pid;
+                setpgid (pid, j->pgid);
+              }
+          }
+      }
       /* Clean up after pipes.  */
       if (infile != j->stdin)
         close (infile);
@@ -202,8 +152,7 @@ int shell_is_interactive)
       infile = mypipe[0];
     }
 
-  format_job_info (j, "launched");
-
+  //format_job_info (j, "launched");
   if (!shell_is_interactive)
     wait_for_job (j);
   else if (foreground)
@@ -212,14 +161,15 @@ int shell_is_interactive)
     put_job_in_background (j, 0);
 }
 
-
 job *NewJob(char *command){
   job *j = (job *)malloc(sizeof(job));
   j->command = command;
-  j->first_process = NewProcess(command);
+  
   j->stdin = STDIN_FILENO;
   j->stdout = STDOUT_FILENO;
   j->stderr = STDERR_FILENO;
+  j->first_process = NewProcess(command,j);
+  return j;
 
 }
 
@@ -243,6 +193,7 @@ job *get_first_job (void)
 void
 put_job_in_foreground (job *j, int cont)
 {
+
   /* Put the job into the foreground.  */
   tcsetpgrp (shell_terminal, j->pgid);
 
@@ -266,6 +217,7 @@ put_job_in_foreground (job *j, int cont)
   tcgetattr (shell_terminal, &j->tmodes);
   tcsetattr (shell_terminal, TCSADRAIN, &shell_tmodes);
 }
+
 void
 put_job_in_background (job *j, int cont)
 {

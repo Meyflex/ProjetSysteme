@@ -1,14 +1,15 @@
 #include "process.h"
 #define MAX_ARGS 100
-
-void launch_process (process *p, pid_t pgid, int infile, int outfile, int errfile,int foreground,int shell_is_interactive,int shell_terminal)
+void
+launch_process (process *p, pid_t pgid,
+                int infile, int outfile, int errfile,
+                int foreground)
 {
   pid_t pid;
   int fd;
   int i;
   int status;
 
-  
 
   if (shell_is_interactive)
     {
@@ -50,10 +51,10 @@ void launch_process (process *p, pid_t pgid, int infile, int outfile, int errfil
 
   /* Exec the new process.  Make sure we exit.  */
   execvp (p->argv[0], p->argv);
+
   perror ("execvp");
   exit (1);
 }
-
 /* Store the status of the process pid that was returned by waitpid.
    Return 0 if all went well, nonzero otherwise.  */
 
@@ -65,7 +66,7 @@ int mark_process_status (pid_t pid, int status)
   if (pid > 0)
     {
       /* Update the record for the process.  */
-      for (j = get_first_job (void); j; j = j->next)
+      for (j = get_first_job (); j; j = j->next)
         for (p = j->first_process; p; p = p->next)
           if (p->pid == pid)
             {
@@ -107,24 +108,76 @@ void update_status (void)
   while (!mark_process_status (pid, status));
 }
 
-process *NewProcess(char *commande){
+process *NewProcess(char *commande,job *j){
   // decompose la commande en arguments
   char *argv[MAX_ARGS];
   int argc = 0;
   char *token = strtok(commande, " ");
   while(token != NULL){
     argv[argc] = token;
-    argc++;
+
+   if(strcmp(argv[argc],"<") == 0){
+    // on a trouve un redirection d'entree
+     //on recupere le nom du fichier
+      token = strtok(NULL, " ");
+      if(token == NULL){
+        fprintf(stderr, "Erreur : il manque le nom du fichier d'entree\n");
+        return NULL;
+      }
+     // on ouvre le fichier
+      int fd = open(token, O_RDONLY);
+       if(fd == -1){
+        fprintf(stderr, "Erreur : impossible d'ouvrir le fichier d'entree\n");
+       return NULL;
+      }
+    j->stdin=fd;
+      
+     }// rechanger redirection des sorties
+    else if(strcmp(argv[argc],">") == 0){
+      // on a trouve un redirection de sortie
+      //on recupere le nom du fichier
+      token = strtok(NULL, " ");
+      if(token == NULL){
+        fprintf(stderr, "Erreur : il manque le nom du fichier de sortie\n");
+        return NULL;
+      }
+      // on ouvre le fichier
+      int fd = open(token, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+      if(fd == -1){
+        fprintf(stderr, "Erreur : impossible d'ouvrir le fichier de sortie\n");
+        return NULL;
+      }
+      j->stdout=fd;
+    }
+     else{
+      argc++;
+    }
+      
+   
     token = strtok(NULL, " ");
   }
   argv[argc] = NULL;
+  
+  
   // création du processus
-  process *p = malloc(sizeof(process));
+  process *p = (process *)malloc(sizeof(process));
   p->argv = argv;
-  p->pid = 0;
-  p->completed = 0;
-  p->stopped = 0;
-  p->status = 0;
-  p->next = NULL;
+   p->next = NULL;
   return p;
+}
+
+int check_builtin_process(char** argv)
+{   
+    int argc = 0;
+
+    char** av = argv;
+    while (*(av++)) argc++;
+   
+
+
+    if (argv == NULL) return 1;
+    if (!strcmp(argv[0],"cd")) { cd(argv[1]); return 1; }
+    if (!strcmp(argv[0],"exit")) { exit(0); return 1; }
+    if (strcmp(argv[0],"ls")==0) { ls(argc,argv);return 1;}
+    return 0;
 }

@@ -6,12 +6,16 @@
 #include <unistd.h>
 #include <termios.h>
 #include <sys/wait.h>
-#include "job.h"
+#include <string.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <errno.h>
+#include "job.h"
+#include "global.h"
+#include "builtin.h"
 
-
-
+// import job structure
+typedef struct job job;
 /* A process is a single process.  */
 typedef struct process
 {
@@ -23,13 +27,15 @@ typedef struct process
   int status;                 /* reported status value */
 } process;
 
-process *NewProcess(char *commande);
+process *NewProcess(char *commande,job *j);
 
 
 
-void launch_process (process *p, pid_t pgid, int infile, int outfile, int errfile,int foreground,int shell_is_interactive,int shell_terminal);
+void launch_process (process *p, pid_t pgid, int infile, int outfile, int errfile,int foreground);
 
 int mark_process_status (pid_t pid, int status);
 
 void update_status (void);
+
+int check_builtin_process(char** argv);
 #endif //PROCESS_H
