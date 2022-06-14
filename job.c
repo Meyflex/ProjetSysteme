@@ -116,6 +116,7 @@ launch_job (job *j, int foreground)
               exit (1);
             }
           outfile = mypipe[1];
+
         }
       else
         outfile = j->stdout;
@@ -164,14 +165,35 @@ launch_job (job *j, int foreground)
 job *NewJob(char *command){
   job *j = (job *)malloc(sizeof(job));
   j->command = command;
-  
   j->stdin = STDIN_FILENO;
   j->stdout = STDOUT_FILENO;
   j->stderr = STDERR_FILENO;
-  j->first_process = NewProcess(command,j);
+
+ 
+  char* token = strtok(command, "|");
+  char* token2 = strtok(NULL, "|");
+
+  
+ 
+  
+  process *p = NewProcess(token,j);
+   j->first_process= p ;
+   while (token2 != NULL){
+    process *p2 = NewProcess(token2,j);
+    p->next = p2;
+    p = p2;
+    token2 = strtok(NULL, "|");
+   }
+
+      
+  
+
   return j;
 
+
 }
+
+
 
 void free_job (job *j)
 {
@@ -225,4 +247,26 @@ put_job_in_background (job *j, int cont)
   if (cont)
     if (kill (-j->pgid, SIGCONT) < 0)
       perror ("kill (SIGCONT)");
+}
+void
+mark_job_as_running (job *j)
+{
+  process *p;
+
+  for (p = j->first_process; p; p = p->next)
+    p->stopped = 0;
+  j->notified = 0;
+}
+
+
+/* Continue the job J.  */
+
+void
+continue_job (job *j, int foreground)
+{
+  mark_job_as_running (j);
+  if (foreground)
+    put_job_in_foreground (j, 1);
+  else
+    put_job_in_background (j, 1);
 }
