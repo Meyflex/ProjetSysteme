@@ -1,19 +1,11 @@
 #ifndef BUILTIN_H_
 #define BUILTIN_H_
+#include <stdio.h>
 //Used for handling directory files
+#include <dirent.h>
 //For EXIT codes and error handling
 #include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <time.h>
-#include <dirent.h>
-#include <libgen.h>
-
 /* Change the current working directory */
 
 //void cd(char** args);
@@ -32,7 +24,5 @@ char**
 parse_command(char *line);
 
 void cd(char* path);
-
-void copyF(char* src, char* dest);
 
 #endif // BUILTIN_H_

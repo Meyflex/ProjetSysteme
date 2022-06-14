@@ -14,9 +14,9 @@
 #include "job.h"
 #include "process.h"
 #include "builtin.h"
-#define BOLDGREEN   "\033[1m\033[31m"      /* Bold Green */
+#define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
 #define reset  "\033[0m"
-#define BOLDBLUE    "\033[1m\033[33m"      /* Bold Blue */
+#define BOLDBLUE    "\033[1m\033[34m"      /* Bold Blue */
 
 pid_t shell_pgid;
 struct termios shell_tmodes;
@@ -100,26 +100,9 @@ void shelloop(){
         if(strcmp(help,"exit\n")==0){
             status=0;
         }
-        else if (strcmp(help,"")==0){
-              continue;        
-              shelloop();
-            }else{
-               if (strchr(help, '&')!=NULL){
-
-                  char* token=strtok(help,"&");
-                  printf("%s\n",token);
-                  launch_job(NewJob(token),0);
-                  //
-
-                }else{
-            
-                  launch_job(NewJob(help),1);
-
-              }
-            }
-          
-            
-        
+        else{
+            launch_job(NewJob(help),1);
+        }
     }while (status);
 
     
@@ -137,11 +120,7 @@ int main(int argc, char *argv[])
     welcomeScreen();
 
     init_shell();
-    
-      shelloop();
-    
-    
-    
+    shelloop();
     return 0;
 }
 
