@@ -5,6 +5,9 @@ launch_process (process *p, pid_t pgid,
                 int infile, int outfile, int errfile,
                 int foreground)
 {
+  
+  // print all the arguments
+  
   pid_t pid;
   int fd;
   int i;
@@ -110,7 +113,9 @@ void update_status (void)
 
 process *NewProcess(char *commande,job *j){
   // decompose la commande en arguments
-  char *argv[MAX_ARGS];
+  
+  char **argv=(char **)malloc(sizeof(char *) * 100);
+  
   int argc = 0;
   char *token = strtok(commande, " ");
   while(token != NULL){
@@ -158,10 +163,12 @@ process *NewProcess(char *commande,job *j){
   }
   argv[argc] = NULL;
   
-  
   // création du processus
   process *p = (process *)malloc(sizeof(process));
   p->argv = argv;
+  
+
+ 
    p->next = NULL;
   return p;
 }
@@ -179,5 +186,7 @@ int check_builtin_process(char** argv)
     if (!strcmp(argv[0],"cd")) { cd(argv[1]); return 1; }
     if (!strcmp(argv[0],"exit")) { exit(0); return 1; }
     if (strcmp(argv[0],"ls")==0) { ls(argc,argv);return 1;}
+    if (strcmp(argv[0],"copy")==0) { copyF(argv[1],argv[2]); return 1;}
+  
     return 0;
 }

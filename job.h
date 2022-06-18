@@ -73,6 +73,10 @@ put_job_in_foreground (job *j, int cont);
 
 void
 put_job_in_background (job *j, int cont);
+void
+mark_job_as_running (job *j);
+void
+continue_job (job *j, int foreground);
 
 #endif  //JOB_H
 

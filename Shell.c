@@ -7,16 +7,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-
-
+#include <readline/readline.h> // install avec sudo apt install libreadline-dev
+#include <readline/history.h> // install avec sudo apt install libreadline-dev
 #include <string.h>
 #include "global.h"
 #include "job.h"
 #include "process.h"
 #include "builtin.h"
-#define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
-#define reset  "\033[0m"
-#define BOLDBLUE    "\033[1m\033[34m"      /* Bold Blue */
+
+#define BOLDGREEN   "\033[1m\033[31m"      /* Bold Green */
+#define reset       "\033[0m"
+#define BOLDBLUE    "\033[1m\033[33m"      /* Bold Blue */
 
 pid_t shell_pgid;
 struct termios shell_tmodes;
@@ -65,44 +66,81 @@ init_shell ()
     }
 }
     
+char* Createprompt()
+{
+  char* prompt_str=malloc(sizeof(char)*100);
+  char hostname[1024];
+        gethostname(hostname, 1024);
+        
+        
+        char cwt[100];
+       
+        if (getcwd(cwt, sizeof(cwt)) != NULL){
+             sprintf(prompt_str,"%s%s@%s%s:%s%s%s$ ",BOLDGREEN,getenv("USER"),hostname,reset,BOLDBLUE, cwt,reset);
+             
+        }
+        else{
+            perror("getcwd() error");
+            
+        }
+        return prompt_str;
+}
 
 //read command from shell function using getline
 
 char *read_command()
 {
   char *line=NULL;
-  ssize_t line_size;
-  getline(&line, &line_size, stdin);
-  line[strlen(line)-1]=0;
+  char *line2=Createprompt();
+//ssize_t line_size;
+ // getline(&line, &line_size, stdin);
+ // line[strlen(line)-1]=0;
  // line[line_size-2]=0;
+ line=readline(line2);
+ add_history(line);
 
   return line;
 }
+
+//function Createprompt function to create prompt
+
+
+
+
+
 
 
 void shelloop(){
     int status=1;
     do{ 
-        char hostname[1024];
-        gethostname(hostname, 1024);
-        printf(BOLDGREEN"%s@%s",getenv("USER"),hostname);
-        printf(reset":");
-        char cwt[100];
-        if (getcwd(cwt, sizeof(cwt)) != NULL){
-            printf(BOLDBLUE "%s", cwt);
-            printf(reset"$ "); 
-        }
-        else{
-            perror("getcwd() error");
-        }
+        
         
         char* help=read_command();
         if(strcmp(help,"exit\n")==0){
             status=0;
         }
-        else{
-            launch_job(NewJob(help),1);
+        else if (strcmp(help,"")==0 || strcmp(help," ")==0){
+              continue;        
+              shelloop();
+        }else {
+            if (strchr(help, '&')!=NULL){
+
+                  char* token=strtok(help,"&");
+                  printf("%s\n",token);
+                  launch_job(NewJob(token),0);
+                  
+
+               }else{
+            
+                  launch_job(NewJob(help),1);
+
+                  
+
+              }
         }
+          
+            
+        
     }while (status);
 
     
@@ -120,7 +158,11 @@ int main(int argc, char *argv[])
     welcomeScreen();
 
     init_shell();
-    shelloop();
+    
+      shelloop();
+    
+    
+    
     return 0;
 }
 

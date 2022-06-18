@@ -49,7 +49,7 @@ void wait_for_job (job *j)
   pid_t pid;
 
   do
-    pid = waitpid (WAIT_ANY, &status, WUNTRACED);
+    pid = waitpid (j->pgid, &status, WUNTRACED);
   while (!mark_process_status (pid, status)
          && !job_is_stopped (j)
          && !job_is_completed (j));
@@ -116,6 +116,7 @@ launch_job (job *j, int foreground)
               exit (1);
             }
           outfile = mypipe[1];
+
         }
       else
         outfile = j->stdout;
@@ -164,14 +165,39 @@ launch_job (job *j, int foreground)
 job *NewJob(char *command){
   job *j = (job *)malloc(sizeof(job));
   j->command = command;
-  
   j->stdin = STDIN_FILENO;
   j->stdout = STDOUT_FILENO;
   j->stderr = STDERR_FILENO;
-  j->first_process = NewProcess(command,j);
+ 
+  // decouper la command en commande separer par | dans un tableau de char
+  // allocate memory for the array of commands
+  char **argv = (char **)malloc(sizeof(char *) * 100);
+  
+  char *token = strtok(command, "|");
+  int i=0;
+  while(token != NULL){
+    argv[i]=token;
+    token = strtok(NULL, "|");
+    i++;
+  }
+
+  //creation du processus dans le job avec le tableau de commande
+ process *p=NULL;
+  p=NewProcess(argv[0],j);
+  j->first_process= p ;
+
+  for(int i=1;i<100;i++){
+    if(argv[i]!=NULL){
+     p->next=NewProcess(argv[i],j);      
+          p=p->next;
+    }
+  }
+
   return j;
 
 }
+
+
 
 void free_job (job *j)
 {
@@ -225,4 +251,26 @@ put_job_in_background (job *j, int cont)
   if (cont)
     if (kill (-j->pgid, SIGCONT) < 0)
       perror ("kill (SIGCONT)");
+}
+void
+mark_job_as_running (job *j)
+{
+  process *p;
+
+  for (p = j->first_process; p; p = p->next)
+    p->stopped = 0;
+  j->notified = 0;
+}
+
+
+/* Continue the job J.  */
+
+void
+continue_job (job *j, int foreground)
+{
+  mark_job_as_running (j);
+  if (foreground)
+    put_job_in_foreground (j, 1);
+  else
+    put_job_in_background (j, 1);
 }
