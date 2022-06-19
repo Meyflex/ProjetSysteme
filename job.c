@@ -192,7 +192,7 @@ job *NewJob(char *command){
           p=p->next;
     }
   }
-
+  free(argv);
   return j;
 
 }

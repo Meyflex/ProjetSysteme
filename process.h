@@ -27,6 +27,7 @@ typedef struct process
   int status;                 /* reported status value */
 } process;
 
+/* Creer un processus pour un job  */
 process *NewProcess(char *commande,job *j);
 
 

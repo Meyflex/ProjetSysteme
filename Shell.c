@@ -15,8 +15,9 @@
 #include "process.h"
 #include "builtin.h"
 
+
 #define BOLDGREEN   "\033[1m\033[31m"      /* Bold Green */
-#define reset       "\033[0m"
+#define reset       "\033[0m"               /* white */
 #define BOLDBLUE    "\033[1m\033[33m"      /* Bold Blue */
 
 pid_t shell_pgid;
@@ -66,10 +67,14 @@ init_shell ()
     }
 }
     
+
+ /* Une fonction qui cree la prompt utilisateur et les fichiers dans lesquels l'utilisateur se situe  */
+    
 char* Createprompt()
 {
-  char* prompt_str=malloc(sizeof(char)*100);
+  char* prompt_str=malloc(sizeof(char)*200);
   char hostname[1024];
+
         gethostname(hostname, 1024);
         
         
@@ -83,26 +88,24 @@ char* Createprompt()
             perror("getcwd() error");
             
         }
+        
         return prompt_str;
 }
 
-//read command from shell function using getline
+/* qui lie les commandes de l'Utilisateur elle permet de faire l'autocompletion et ainsi l'historique des commandes  */
 
 char *read_command()
 {
   char *line=NULL;
   char *line2=Createprompt();
-//ssize_t line_size;
- // getline(&line, &line_size, stdin);
- // line[strlen(line)-1]=0;
- // line[line_size-2]=0;
- line=readline(line2);
- add_history(line);
 
+  line=readline(line2);
+  
+  add_history(line);
+  free(line2);
   return line;
 }
 
-//function Createprompt function to create prompt
 
 
 
@@ -110,44 +113,43 @@ char *read_command()
 
 
 
+/* qui permet de creer un job avec les commandes de l'utilisateur */
 void shelloop(){
     int status=1;
     do{ 
-        
-        
-        char* help=read_command();
-        if(strcmp(help,"exit\n")==0){
+      
+        char* command=read_command();
+        if(strcmp(command,"exit\n")==0){
             status=0;
         }
-        else if (strcmp(help,"")==0 || strcmp(help," ")==0){
+        else if (strcmp(command,"")==0 || strcmp(command," ")==0){
               continue;        
               shelloop();
         }else {
-            if (strchr(help, '&')!=NULL){
+            if (strchr(command, '&')!=NULL){
 
-                  char* token=strtok(help,"&");
+                  char* token=strtok(command,"&");
                   printf("%s\n",token);
                   launch_job(NewJob(token),0);
-                  
-
                }else{
-            
-                  launch_job(NewJob(help),1);
-
+                  job *j=NewJob(command);
+                  launch_job(j,1);
+                  free_job(j);
                   
-
               }
         }
           
-            
-        
+      free(command);
     }while (status);
-
+    
     
 }
+
+
+/* une fonction void qui permet l'affichage de l'introduction */
 void welcomeScreen(){
         printf("\n\t================================================\n");
-        printf("\t          Group 5 :  Shell in C \n");
+        printf("\t                  Shell in C \n");
         printf("\t      Elmdimegh Mohamed , Hadouaj Habib\n");
         printf("\t================================================\n");
         printf("\n\n");
@@ -156,13 +158,8 @@ void welcomeScreen(){
 int main(int argc, char *argv[])
 {
     welcomeScreen();
-
     init_shell();
-    
-      shelloop();
-    
-    
-    
+    shelloop();
     return 0;
 }
 

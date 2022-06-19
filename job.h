@@ -28,6 +28,7 @@ typedef struct job
 
 job *get_first_job (void);
 
+/*fonction qui permet de cree un nouveau Job ainsi que les processus de celui-ci*/
 job *NewJob(char *command);
 
 

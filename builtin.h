@@ -14,24 +14,22 @@
 #include <dirent.h>
 #include <libgen.h>
 
-/* Change the current working directory */
 
-//void cd(char** args);
 
-/* List directory contents */
+/* fonction qui permet de lister les fichiers dans le shell */
 void ls(int argc, char *argv[]);
 void _ls(const char *dir,int op_a,int op_l);
 /* Print a helpful description of how to use the shell */
 void help(void);
 /* Exit the shell */
 void exit_shell(void);
-/* Print the current working directory */
-void pwd(void);
-/* Print the current process id */
+
+
 char**
 parse_command(char *line);
-
+/* fonction cd qui permet de changer de fichier dans le shell  */
 void cd(char* path);
+/* fonction qui permet de copier un fichier ou un directory dans un autre */
 
 void copyF(char* src, char* dest);
 

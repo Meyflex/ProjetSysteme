@@ -55,7 +55,7 @@ launch_process (process *p, pid_t pgid,
   /* Exec the new process.  Make sure we exit.  */
   execvp (p->argv[0], p->argv);
 
-  perror ("execvp");
+ // perror ("execvp");
   exit (1);
 }
 /* Store the status of the process pid that was returned by waitpid.
@@ -118,6 +118,7 @@ process *NewProcess(char *commande,job *j){
   
   int argc = 0;
   char *token = strtok(commande, " ");
+
   while(token != NULL){
     argv[argc] = token;
 
@@ -170,6 +171,7 @@ process *NewProcess(char *commande,job *j){
 
  
    p->next = NULL;
+ // free(argv);
   return p;
 }
 

@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 
 
+ 
 void cd(char* path)
 {	
 	if(path != NULL){
@@ -53,7 +54,6 @@ void ls(int argc, char *argv[])
 }
 
 
-
 void _ls(const char *dir,int op_a,int op_l)
 {
 		struct dirent *d;
@@ -86,16 +86,6 @@ void _ls(const char *dir,int op_a,int op_l)
 }
 
 
-void pwd(void){
-    char cwd[1024];
-    if (getcwd(cwd, sizeof(cwd)) != NULL)
-        printf("%s\n", cwd);
-    else
-        perror("Unable to get current working directory");
-}
-void exit_shell(void){
-    exit(EXIT_SUCCESS);
-}
 
 
 
@@ -117,7 +107,7 @@ char** parse_command(char *line)
 }
 
 
-
+/* fonction qui permet de copier un fichier ou un directory dans un autre */
 void copyfile(char *src, char *dest){
     struct stat info;
     char *buffer = malloc(sizeof(char) * 1024);
