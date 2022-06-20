@@ -11,6 +11,10 @@
 * Quitter le shell grâce à la commande “exit”
 * Copier des fichiers ou des dossiers grâce à la commande “copy”
 
+### A Ameliorer
+* Un meilleur controle de la memoire.
+
+
 
 ### Installation
 Certaines librairies ne sont pas disponibles directement dans certains ordinateurs, installez donc directement la bibliothèque sur votre shell avec :
