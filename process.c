@@ -188,7 +188,7 @@ int check_builtin_process(char** argv)
     if (!strcmp(argv[0],"cd")) { cd(argv[1]); return 1; }
     if (!strcmp(argv[0],"exit")) { exit(0); return 1; }
     if (strcmp(argv[0],"ls")==0) { ls(argc,argv);return 1;}
-    if (strcmp(argv[0],"copy")==0) { copyF(argv[1],argv[2]); return 1;}
+    if (strcmp(argv[0],"copy")==0) { copydir(argv[1],argv[2]); return 1;}
   
     return 0;
 }

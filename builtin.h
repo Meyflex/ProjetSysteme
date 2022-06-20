@@ -31,6 +31,6 @@ parse_command(char *line);
 void cd(char* path);
 /* fonction qui permet de copier un fichier ou un directory dans un autre */
 
-void copyF(char* src, char* dest);
+void copydir(char *src, char *dest);
 
 #endif // BUILTIN_H_

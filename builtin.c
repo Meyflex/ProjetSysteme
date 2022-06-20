@@ -107,74 +107,55 @@ char** parse_command(char *line)
 }
 
 
-/* fonction qui permet de copier un fichier ou un directory dans un autre */
-void copyfile(char *src, char *dest){
-    struct stat info;
+
+void copy(char *src1,char *dest1){
+    char *src = src1;
+    char *dest = dest1; 
+    struct stat st;
+    stat(src, &st);
     char *buffer = malloc(sizeof(char) * 1024);
     int fd_src = open(src, O_RDONLY);
-    int fd_dest = open(dest, O_WRONLY | O_CREAT, 0644);
-    fstat(fd_src, &info);
+    int fd_dest = open(dest, O_WRONLY | O_CREAT,0644);
     int nb_read = 0;
     while((nb_read = read(fd_src, buffer, 1024)) > 0){
         write(fd_dest, buffer, nb_read);
-    }
+    } 
     free(buffer);
-    fchmod(fd_dest, info.st_mode);
     close(fd_src);
     close(fd_dest);
+    chmod(dest,st.st_mode);
 }
-void copyF(char *src, char *dest){
-    DIR *repsrc;
-    DIR *repdest;
-    struct stat buf;
-    stat(src,&buf);
-    if(S_ISDIR(buf.st_mode)) {
-        repsrc= opendir(src);
-        repdest=opendir(dest);
-        struct dirent *dir;
-        dir=readdir(repsrc);
-        dir=readdir(repsrc); 
-        while ((dir = readdir(repsrc)) != NULL){
-            if(dir->d_type==DT_DIR) {
-                char srcnew[100],destnew[100];
-                strcpy(srcnew,src);
-                strcat(srcnew,"/");
-                strcat(srcnew,dir->d_name);
-                strcpy(destnew,dest);
-                strcat(destnew,"/");
-                strcat(destnew,dir->d_name);
-                mkdir(destnew,S_IRWXU);
-                copyF(srcnew,destnew);
-            }
-            else if(dir->d_type==DT_REG){
-                char srcnew[100],destnew[100];
-                strcpy(srcnew,src);
-                strcat(srcnew,"/");
-                strcat(srcnew,dir->d_name);
-                strcpy(destnew,dest);
-                strcat(destnew,"/");
-                strcat(destnew,dir->d_name);
-                copyfile(srcnew,destnew);
-            }else{
-                printf("\nCe fichier/répertoire %s est inaccessible.\n",dir->d_name);
-            }
+
+void copydir(char *src, char *dest){
+    DIR *dir = opendir(src);
+    struct dirent *dirent;
+    char *src_path = malloc(sizeof(char) * 1024);
+    char *dest_path = malloc(sizeof(char) * 1024);
+    while((dirent = readdir(dir)) != NULL){
+        if(strcmp(dirent->d_name, ".") == 0 || strcmp(dirent->d_name, "..") == 0){
+            continue;
         }
-        closedir(repsrc);
-        closedir(repdest);
+        strcpy(src_path, src);
+        strcpy(dest_path, dest);
+        strcat(src_path, "/");
+        strcat(src_path, dirent->d_name);
+        strcat(dest_path, "/");
+        strcat(dest_path, dirent->d_name);
+        if(dirent->d_type == DT_DIR){
+            mkdir(dest_path, 0755);
+            copydir(src_path, dest_path);
+        }
+        else{
+            copy(src_path, dest_path);
+        }
     }
-    else if(S_ISREG(buf.st_mode)){
-            char *base;
-            char destnew[100];
-            base=basename(src);
-            strcpy(destnew,dest);
-            strcat(destnew,"/");
-            strcat(destnew,base);
-            copyfile(src,destnew);
-    }else{
-        printf("\nCe fichier/répertoire %s n'existe pas.\n",src);
-    }
+    free(src_path);
+    free(dest_path);
+    closedir(dir);
+}
+
 
    
-}
+
 
 
