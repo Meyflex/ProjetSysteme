@@ -11,7 +11,7 @@
 * Quitter le shell grâce à la commande “exit”.
 * Copier des fichiers ou des dossiers grâce à la commande “copy”.
 
-### A Ameliorer
+### À ameliorer
 * Un meilleur controle de la memoire.
 * la commande pour l'entree sortie combinée dans une seule commande qui ne fonctionne pas.
 
