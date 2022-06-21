@@ -26,7 +26,7 @@ Ensuite il suffit de compiler le projet avec le fichier Compile avec la commande
 ```bash
 ./compile
 ```
-Finalement lancer le shell
+Finalement lancer le shell :
 ```bash
 ./tp
 ```
