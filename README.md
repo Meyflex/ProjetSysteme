@@ -22,3 +22,13 @@ Certaines librairies ne sont pas disponibles directement dans certains ordinateu
 ```bash
 apt install libreadline-dev
 ```
+Ensuite il suffit de compiler le projet avec le fichier Compile avec la commande suivante :
+```bash
+./compile
+```
+Finalement lancer le shell
+```bash
+./tp
+```
+
+
