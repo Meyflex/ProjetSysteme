@@ -17,7 +17,7 @@
 
 <img src="https://user-images.githubusercontent.com/98128042/177778474-6143c963-a3cb-4446-b09b-0e668caa917a.png"  height="300">
 
-### À ameliorer
+### À améliorer 
 * Un meilleur controle de la memoire.
 * la commande pour l'entree sortie combinée dans une seule commande qui ne fonctionne pas.
 
