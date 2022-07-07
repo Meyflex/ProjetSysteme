@@ -1,6 +1,6 @@
-# ProjetSysteme Et3 INFO
+# ProjetSysteme Et3 INFO : <em> Shell </em>
 
-## Creating a shell using [GNU](https://www.gnu.org/software/libc/manual/html_node/Implementing-a-Shell.html) job control
+## Creation d'un shell en utilisant [GNU](https://www.gnu.org/software/libc/manual/html_node/Implementing-a-Shell.html) job control
 ### Fonctionalites
 
 * Naviguer dans les dossiers grâces aux commandes “cd” et “ls”.
