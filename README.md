@@ -15,7 +15,7 @@
 * Ouverture de notre Shell dans le shell linux
 
 
-<img src="https://user-images.githubusercontent.com/98128042/177778474-6143c963-a3cb-4446-b09b-0e668caa917a.png"  height="300">
+<img src="https://user-images.githubusercontent.com/98128042/179525420-d83a9127-f1e2-4e38-8eab-2f53983ad69f.png"  height="300">
 
 ### À améliorer 
 * Un meilleur controle de la memoire.
