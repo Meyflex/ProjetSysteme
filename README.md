@@ -38,3 +38,13 @@ Finalement lancer le shell :
 ```
 
 
+
+<!-- CONTACT -->
+## Contact
+
+Mohamed Elmdimegh - mohamed.elmdimegh@universite-paris-saclay.fr
+
+Project Link: [https://github.com/Meyflex/Carousel](https://github.com/Meyflex/Carousel)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
